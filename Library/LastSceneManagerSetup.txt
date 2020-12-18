@@ -1,0 +1,5 @@
+sceneSetups:
+- path: Assets/Low_poly_styled_trees/Examples/Scenes/example_scene_a.unity
+  isLoaded: 1
+  isActive: 1
+  isSubScene: 0
