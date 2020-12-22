@@ -5,7 +5,12 @@ using UnityEngine;
 public class ForestObjects : MonoBehaviour
 {
     public GameObject[] beachTrees;
+    public int[] numberB;
+    public GameObject[] forestTrees;
+    public int[] numberF;
     public GameObject[] hillTrees;
-    public GameObject[] prefab;
-    public int[] number;
+    public int[] numberH;
+
+    public GameObject[] valleys;
+    public int[] numberV;
 }

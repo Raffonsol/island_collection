@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class MeshGenerator : MonoBehaviour
 {
-    readonly Random _random = new Random();  
     System.Random rnd;
 
     Mesh mesh;
@@ -13,7 +12,8 @@ public class MeshGenerator : MonoBehaviour
     [HideInInspector]
     public Vector3[] vertices;
     int[] triangles;
-    Color[] colors;
+    [HideInInspector]
+    public Color[] colors;
 
     int mapX;
     int mapZ;
@@ -105,7 +105,7 @@ public class MeshGenerator : MonoBehaviour
                 Color.Lerp(
                     Color.green, 
                     CombineColors(Color.white, Color.gray),
-                    (vertices[i].y) / 3),
+                    (vertices[i].y - 10) / 3),
                 vertices[i].y + 15);
 
 

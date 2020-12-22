@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class ForestGeneration : MonoBehaviour
 {
-    private readonly Random _random = new Random();  
-
     private ForestObjects trees;
 
     bool loaded = false;
     Vector3[] vertices;
+    Color[] colors;
     System.Random rnd;
 
     public float waterLevel = -50f;
@@ -27,31 +25,37 @@ public class ForestGeneration : MonoBehaviour
     void load()
     {
         vertices = GameObject.Find("Mesh Generator").GetComponent<MeshGenerator>().vertices; 
+        colors = GameObject.Find("Mesh Generator").GetComponent<MeshGenerator>().colors; 
         loaded = true;
         this.trees = GetComponent<ForestObjects>();
+
+        generateLayer(waterLevel, beachLevel, trees.beachTrees, trees.numberB);
+        generateLayer(beachLevel, snowLevel, trees.forestTrees, trees.numberF);
+        generateLayer(snowLevel, 500f, trees.hillTrees, trees.numberH);
+        generateLayer(waterLevel, 500f, trees.valleys, trees.numberV, true);
+
+    }
+
+    void generateLayer(float level1, float level2, GameObject[] prefabs, int[] number, bool colorMatch = false) {
         int point;
-        for (var i = 0; i < trees.prefab.Length; i++)
+
+        for (var i = 0; i < prefabs.Length; i++)
         {
-            for (var j = 0; j < trees.number[i]; j++)
+            for (var j = 0; j < number[i]; j++)
             {
                 do
                     point = rnd.Next(0, vertices.Length);
-                while (vertices[point].y <= waterLevel);
+                while (vertices[point].y < level1 || vertices[point].y > level2);
 
-                int beachTreeIndex = rnd.Next(0, trees.beachTrees.Length);
-                int hillTreeIndex = rnd.Next(0, trees.hillTrees.Length);
-
-                GameObject prefab = trees.prefab[i];
-                if (vertices[point].y >= waterLevel && vertices[point].y <= beachLevel)
-                {
-                    prefab = trees.beachTrees[beachTreeIndex];
-                } else if (vertices[point].y >= snowLevel)
-                {
-                    prefab = trees.hillTrees[hillTreeIndex];
-                }
+                GameObject prefab = prefabs[i];
                 Quaternion rotation = Quaternion.Euler(0, rnd.Next(0, 360), 0);
-                Instantiate(prefab, vertices[point], rotation);
-           
+
+                GameObject instd = Instantiate(prefab, vertices[point], rotation);
+                if (colorMatch) {
+                    Component[] mesh = instd.GetComponentsInChildren<MeshRenderer>();
+                    mesh[mesh.Length - 1].GetComponent<MeshRenderer>().material.SetColor("_Color", colors[point]);
+                }
+
             }
         }
     }

@@ -18,6 +18,9 @@ public class Movement : MonoBehaviour
     RotationAxes axes = RotationAxes.MouseXAndY;
     Vector3 jump;
     bool isGrounded;
+
+    float waterHeight = 0f;
+    bool isUnderwater = false;
     #endregion
     #region "Constants"
     public Rigidbody Rigid;
@@ -28,6 +31,9 @@ public class Movement : MonoBehaviour
     public float sensitivityY = 15F;
 
     public float jumpForce = 2.0f;
+
+    public Color normalColor = new Color (0.5f, 0.5f, 0.5f, 0.5f);
+    public Color underwaterColor = new Color (0.22f, 0.65f, 0.77f, 0.5f);
 
     #endregion
 
@@ -61,10 +67,18 @@ public class Movement : MonoBehaviour
 
         float goingSpeed = MoveSpeed;
         // prevent double speed by pressing two keys: 
-        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S)) && (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D)))
-            goingSpeed /= 2;
+        // if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.S)) && (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.D)))
+            // goingSpeed /= 2;
 
-       Rigid.MovePosition(transform.position + (transform.forward * Input.GetAxis("Vertical") * goingSpeed) + (transform.right * Input.GetAxis("Horizontal") * goingSpeed));
+         RaycastHit hit;
+          if (Physics.Raycast(transform.position, (transform.forward * Input.GetAxis("Vertical") * goingSpeed) + (transform.right * Input.GetAxis("Horizontal") * goingSpeed), out hit))
+        //     // print("Found an object - distance: " + hit.distance);
+            if (hit.distance <= 0.7f)
+            goingSpeed /= 2;
+                Rigid.MovePosition(transform.position + (transform.forward * Input.GetAxis("Vertical") * goingSpeed) + (transform.right * Input.GetAxis("Horizontal") * goingSpeed));
+        //     else 
+                // Rigid.MovePosition(transform.position + (transform.forward * Input.GetAxis("Vertical") * -goingSpeed) + (transform.right * Input.GetAxis("Horizontal") * goingSpeed));
+            
 
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
@@ -73,7 +87,11 @@ public class Movement : MonoBehaviour
             isGrounded = false;
         }
 
-        // Debug.Log(Input.GetKeyDown(KeyCode.W));
+        if ((transform.position.y < waterHeight) != isUnderwater) {
+            isUnderwater = transform.position.y < waterHeight;
+            if (isUnderwater) SetUnderwater ();
+            if (!isUnderwater) SetNormal ();
+        }
     }
    
     // Start is called before the first frame update
@@ -86,11 +104,25 @@ public class Movement : MonoBehaviour
         originalRotation = transform.localRotation;
 
         jump = new Vector3(0.0f, 2.0f, 0.0f);
+
+        waterHeight = GameObject.FindGameObjectsWithTag("Water")[0].transform.position.y;
     }
 
     void OnCollisionStay()
     {
         isGrounded = true;
+    }
+
+    void SetNormal () {
+        RenderSettings.fogColor = normalColor;
+        RenderSettings.fogDensity = 0.005f;
+ 
+    }
+ 
+    void SetUnderwater () {
+        RenderSettings.fogColor = underwaterColor;
+        RenderSettings.fogDensity = 0.1f;
+ 
     }
 
     public static float ClampAngle(float angle, float min, float max)
